@@ -1,65 +1,22 @@
 const bcrypt = require('bcryptjs/dist/bcrypt');
+const { redirect } = require('express/lib/response');
 const jwt = require('jsonwebtoken')
-const { db, TOKEN_KEY } = require('../../config/database')
+const { db } = require('../../config/database')
+require('dotenv').config();
+const key = process.env.SECRET_KEY
 
-const create = async function (req, res) {
+module.exports.register = async function(req, res) {
     try {
-        // Get user input
-        const { username, email, password } = req.body;
+        const { fullname, email, password } = req.body
 
-        // Validate user input
-        if (!(username && email && password)) {
-            res.status(400).send("All data is required");
-        }
+        const encryptPassword = await bcrypt.hash(password, 12);
 
-        //check if user already exist
-        //Validate if user exist in our database
-        const oldUser = await db.query(
-            "SELECT email FROM users WHERE email = ?", [email],
+        db.query({ sql: "INSERT users (fullname,email,passwd) VALUES (?,?,?)", timeout: 1000 }, [fullname, email.toLowerCase(), encryptPassword],
             (err, result) => {
                 if (err) {
-                    console.log(err);
-                } else {
-                    return (result);
+                    return res.status(500).send(err)
                 }
-            }
-        )
-
-        if (oldUser.email === email) {
-            return res.status(409).send("User already exist. Please login")
-        }
-
-        // Encrypt user password
-        encryptedPassword = await bcrypt.hash(password, 10);
-        await db.query(
-            "INSERT INTO users (username, email, passwd) VALUES (?,?,?)",
-            [username, email, encryptedPassword],
-            (err, result) => {
-                if (err) {
-                    console.log(err)
-                } else {
-                    // create token
-                    const token = jwt.sign(
-                        { user_id: result.userId, email },
-                        TOKEN_KEY,
-                        {
-                            expiresIn: "2h"
-                        }
-                    )
-                    db.query(
-                        "UPDATE users SET token = ? WHERE userId = ?",
-                        [token, result.userId], 
-                        (err, result) => {
-                            if (err) {
-                                console.error(err); throw err;
-                            } else {
-                                res.send("Succesfully to update")
-                            }
-                        })
-                        res.status(201).json(result)
-                }
-                
-
+                return res.status(200).send({ "message": "Successfully insert Data to Database", "InsertID": result.InsertID })
             }
         )
     } catch (error) {
@@ -67,32 +24,74 @@ const create = async function (req, res) {
     }
 }
 
-const login = function (req, res) {
-    const payload = {
-        sub: req.body.username,
-        iat: new Date().getTime()
-    };
-    res.send(jwt.encode(payload, SECRET));
-    res.send("login")
+module.exports.login = function(req, res) {
+    // Get data input
+    const { email, password } = req.body;
+
+    // Validate email
+    if (!(email && password)) {
+        return res.status(400).send();
+    }
+
+    // Check email in database
+    try {
+
+        db.query({ sql: "SELECT user_id,passwd,fullname FROM users WHERE email = ?", timeout: 1000 }, [email.toLowerCase()],
+            (err, result) => {
+                if (err) {
+                    return res.status(400).send(err)
+                }
+                if (result.length != 0) {
+                    const match = bcrypt.compare(password, result[0].passwd)
+                    if (!match) {
+                        return res.status(403).send("password or email incorrect")
+                    } else {
+                        let payload = {
+                            sub: result[0].user_id,
+                            name: result[0].fullname,
+                            iat: new Date().getTime()
+                        }
+                        const token = jwt.sign(payload, key, { expiresIn: '1h' })
+                        db.query({ sql: "UPDATE users SET token = ? WHERE user_id = ? ", timeout: 1000 }, [token, result[0].user_id],
+                            (err, result) => {
+                                if (err) throw err;
+                                return res.send({
+                                    token: token,
+                                    key: key
+                                })
+                            })
+                    }
+
+                } else {
+                    return res.status(401).send(" Please Register")
+                }
+
+            })
+
+    } catch (error) {
+
+    }
+
 }
 
-const list = function (req, res) {
-    db.query("SELECT * FROM users", function (err, result) {
+module.exports.list = function(req, res) {
+    db.query({ sql: "SELECT * FROM users", timeout: 1000 }, function(err, result) {
         if (err) {
             console.log(err);
-            throw err;
+            return res.status()
         } else {
-            res.send(result)
+            return res.send(result)
         }
+
     })
+
 }
 
-const update = function (req, res) {
+module.exports.updateProfile = function(req, res) {
     const id = req.body.id;
     const profile = req.body.profileImage;
     db.query(
-        "UPDATE users SET profileImage = ? WHERE userId = ?",
-        [profile, id], (err, result) => {
+        "UPDATE users SET profileImage = ? WHERE userId = ?", [profile, id], (err, result) => {
             if (err) {
                 console.log(err)
                 throw err
@@ -102,7 +101,12 @@ const update = function (req, res) {
         }
     )
 
+
 }
 
-module.exports = { create, login, list, update }
+module.exports.updatePassword = function(req, res) {
 
+}
+module.exports.updateImageProfile = function(req, res) {
+
+}
