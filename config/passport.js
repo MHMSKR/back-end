@@ -33,19 +33,19 @@ passport.use(new LocalStrategy({
     })
 }))
 
-passport.use(new JwtStrategy({
+passport.use(new JwtStrategy({ // get token from bearer header
     jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
     secretOrKey: key
 }, (jwtPayload, done) => {
     db.getConnection((err, db) => {
-        if (err) return done(err)
+        if (err) return done(err) // get user data by id in token
         db.query({ sql: 'SELECT * FROM users WHERE user_id = ?', timeout: 1000 }, [jwtPayload._id],
             (err, result) => {
                 if (err) return done(err)
                 if (result.length == 0) {
                     return done(null, false)
-                } else {
-                    if ((result[0].fullname === jwtPayload.sub) && ((new Date().getTime() - jwtPayload.exp))) {
+                } else { // Validation token expire and check equa fullname with sub of token jwt
+                    if ((result[0].fullname === jwtPayload.sub) && ((new Date().getTime() - jwtPayload.exp) < 0)) {
                         return done(null, result[0])
                     } else {
                         return done(null, false)
