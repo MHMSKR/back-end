@@ -133,8 +133,8 @@ module.exports.Login = function(req, res, next) {
 //         port: 587,
 //         secure: false, // true for 465, false for other ports
 //         auth: {
-//             user: 'hescashome@gmail.com',
-//             pass: 'HesCasHome_394411415'
+//             user: '',
+//             pass: ''
 //         }
 //     });
 //     const resetPassLink = req.protocol + `://` + req.headers.host + `reset-password/:` + req.user.user_id + `/:` + req.user.token
