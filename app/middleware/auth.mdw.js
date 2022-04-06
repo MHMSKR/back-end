@@ -139,7 +139,7 @@ module.exports.Login = function(req, res, next) {
 //     });
 //     const resetPassLink = req.protocol + `://` + req.headers.host + `reset-password/:` + req.user.user_id + `/:` + req.user.token
 //     const mailOption = {
-//         from: 'hescashome@gmail.com',
+//         from: '',
 //         to: req.user.email,
 //         subject: 'Reset password HesCasHome',
 //         html: '<div><h4>เรียน' + req.user.fullname + '</h4><br/><p>คลิกลิงค นี้เพื่อรีเซตรหัสผ่าน</p></br>' + resetPassLink + '</div>'
