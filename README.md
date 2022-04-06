@@ -18,10 +18,10 @@ SECRET_KEY = "HESCAS_FINAL_PROJECT_PRIVATE_KEY"
 database info 
 
 users table
-    _id = index of rows of table
-    user_id = uuid 32 bit primary key
-    email = email in lower case letter is a uniq
-    passwd = encrypted password
-    fullname = free name user can use
-    role = role management hescas home device have a two role is one 'host' and nine 'resident'
-    image_profile = profile image type png, jpg, jpeg size less than 10mb
+- _id = index of rows of table
+- user_id = uuid 32 bit primary key
+- email = email in lower case letter is a uniq
+- passwd = encrypted password
+- fullname = free name user can use
+- role = role management hescas home device have a two role is one 'host' and nine 'resident'
+- image_profile = profile image type png, jpg, jpeg size less than 10mb
