@@ -14,7 +14,12 @@ require('./config/passport')
     // import router api
 app.use('/auth', require('./app/routes/auth.api.js'))
 app.use('/me', passport.authenticate('jwt', { session: false }), require('./app/routes/user.api.js'))
+app.get('/',(req,res)=>{
+    res.send({server:{
+        message : "Hello World Of HesCas Project"
+    }})
+})
     // listening of server
 app.listen(port, () => {
-    console.log("server an listen on link " + `http://localhost:` + port)
+    console.log("server an listen on link "+port)
 })
