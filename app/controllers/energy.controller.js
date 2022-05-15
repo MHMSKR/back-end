@@ -1,31 +1,27 @@
-module.exports.energyRealtime = function(req, res) {
+const { db } = require('../../config/database')
+const fs = require('fs')
 
-    const power = Math.floor(Math.random() * 1000)
-    const energy = {
-        'hs0001': {
-            'place': 'bedroom',
-            'power': power, // watt at this time
-            'iat': new Date().getTime(),
-            'short_circuite': false
-        }
-    }
-    return res.send(energy)
+
+module.exports.energyRealtime = function(req, res) {
+    db.getConnection((err,db)=>{
+        if(err) return res.status(500).send(err);
+        db.query({sql:"SELECT * FROM `energy_s` ORDER BY iat DESC LIMIT 1",timeout:1000},
+            (err,result)=>{
+                if(err) return res.status(500).send(err);
+                if(result.length !== 0){
+                    return res.status(200).send(result);
+                }else{
+                    return res.status(401).send('bad')
+                }
+        })
+        db.release();
+    })
 }
 
-// 'energy': {
-//     'hs0001' : {
-//         'place' : 'bedroom',
-//         'power' : '100', // watt at this time
-//         'iat'   : 'date time',
-//         'short_circuite' : 'false'
-//     },
-//     'hs0002' : {
-//         'place' : 'bahtroom',
-//         'power' : '200', // watt at this time
-//         'iat'   : 'date time',
-//         'short_circuite' : 'false'
-//     },
-// }
+module.exports.energyRealtimeById = function(req,res){
+
+}
+
 
 module.exports.history = (req, res) => {
     res.send('this api for history')

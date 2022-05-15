@@ -14,3 +14,14 @@ SECRET_KEY = "HESCAS_FINAL_PROJECT_PRIVATE_KEY"
 3. import database file in your phpmyadmin page
 4. run `npm install` to install dependencies
 5. run `npm run dev` to run this project
+
+database info 
+
+users table
+- _id = index of rows of table
+- user_id = uuid 32 bit primary key
+- email = email in lower case letter is a uniq
+- passwd = encrypted password
+- fullname = free name user can use
+- role = role management hescas home device have a two role is one 'host' and nine 'resident'
+- image_profile = profile image type png, jpg, jpeg size less than 10mb
