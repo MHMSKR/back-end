@@ -3,6 +3,8 @@ const cors = require('cors')
 const bodyParser = require('body-parser');
 const passport = require('passport');
 const path = require('path');
+
+require('./config/notification')
 require('dotenv').config();
 global.__basedir = __dirname
 const port = process.env.API_PORT || process.env.PORT
@@ -14,7 +16,7 @@ app.set('view engine', 'ejs');
 
 // import passport config
 require('./config/passport')
-require('./config/cron-job')
+// require('./config/cron-job')
 // use public folder
 app.use(express.static(path.join(__dirname, 'public')))
 

@@ -4,6 +4,7 @@ const eng = require('../controllers/energy.controller')
 
 // Manage User Api
 router.get('/', eng.energyRealtime)
-// router.get('/:id',enegyCheckById,eng.energyRealtimeById)
+// router.get('/:id',eng.energyRealtimeById)
+router.get('/hour',eng.hour)
 
 module.exports = router
